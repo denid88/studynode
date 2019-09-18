@@ -1,6 +1,8 @@
 const fs = require('fs')
 const chalk = require('chalk')
+const yargs = require('yargs')
 
+/*
 let msg = chalk.blue.inverse('Start app')
 console.log(msg)
 
@@ -9,8 +11,51 @@ console.log(success)
 
 let error = chalk.red.inverse('One error')
 console.log(error)
+*/
+yargs.version('1.0.0')
+yargs.command({
+  command: 'add',
+  describe: 'Add a new notes',
+  builder: {
+    title: {
+      describe: 'Note title',
+      demandOption: true,
+      type: 'string'
+    },
+    body: {
+      describe: 'Note body',
+      demandOption: true,
+      type: 'number'
+    }
+  },
+  handler: function(argv) {
+    console.log(`Title: ${argv.title} Body: ${argv.body}`)
+  }
+})
+yargs.command({
+  command: 'remove',
+  describe: 'Remove a new notes',
+  handler: function() {
+    console.log('Removing new notes')
+  }
+})
+yargs.command({
+  command: 'list',
+  describe: 'List a notes',
+  handler: function() {
+    console.log('Listing new notes')
+  }
+})
+yargs.command({
+  command: 'read',
+  describe: 'Read a notes',
+  handler: function() {
+    console.log('Reading new notes')
+  }
+})
 
-console.log(process.argv)
+yargs.parse()
+//console.log(yargs.argv)
 //fs.appendFileSync('notes.txt', ' I live in Philadelphia')
 
 //fs.writeFileSync('notes.txt', 'This files created by Node.js');
