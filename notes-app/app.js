@@ -1,7 +1,7 @@
 const fs = require('fs')
 const chalk = require('chalk')
 const yargs = require('yargs')
-
+const notes = require('./notes.js')
 /*
 let msg = chalk.blue.inverse('Start app')
 console.log(msg)
@@ -25,11 +25,11 @@ yargs.command({
     body: {
       describe: 'Note body',
       demandOption: true,
-      type: 'number'
+      type: 'string'
     }
   },
   handler: function(argv) {
-    console.log(`Title: ${argv.title} Body: ${argv.body}`)
+    notes.addNote(argv.title, argv.body)
   }
 })
 yargs.command({
