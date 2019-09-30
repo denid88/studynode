@@ -6,3 +6,6 @@ weather-app/package-lock.json
 
 boroda/node_modules/
 boroda/package-lock.json
+
+web-server/node_modules/
+web-server/package-lock.json
