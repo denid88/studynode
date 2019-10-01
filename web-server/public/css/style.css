@@ -1,0 +1,11 @@
+main{
+  max-width: 1200px;
+  margin: 0 auto;
+}
+h1 {
+  text-transform: uppercase;
+  color: darkblue;
+}
+img{
+  max-width: 100%;
+}
