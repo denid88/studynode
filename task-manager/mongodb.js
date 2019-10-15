@@ -17,17 +17,31 @@ MongoClient.connect(connectionUrl, {
   console.log('Connected correctly!');
   const db = client.db(databaseName);
   
-  
-  db.collection('users').insertOne({
-    _id: id,
-    name: 'Denid',
-    age: 32
-  }, (error, result) => {
+  db.collection('tasks').find({status: false}).toArray((error, tasks) => {
+    if (error) () => console.log(error);
+
+    console.log(tasks);
+  });
+  /*
+  db.collection('tasks').insertMany([
+    {
+      task: 'Learning Wordpress',
+      status: true
+    },
+    {
+      task: 'Learning Node.js',
+      status: false
+    },
+    {
+      task: 'Learning React.js',
+      status: false
+    },
+], (error, result) => {
     if (error) () => console.log('Unable to insert user');
 
     console.log(result.ops);
-  });
-  
+  });*/
+   
  /*
  db.collection('users').insertMany([
   {
