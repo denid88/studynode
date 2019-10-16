@@ -17,11 +17,30 @@ MongoClient.connect(connectionUrl, {
   console.log('Connected correctly!');
   const db = client.db(databaseName);
   
+  db.collection('users').deleteMany({
+    age: 24
+  }).then((r) => console.log(r))
+  .catch(e => console.log(e))
+  
+  /*
+  db.collection('tasks').updateMany({
+      status: false
+  },{
+    $set: {
+      status: true
+    }
+  }, (error, result) => {
+    if (error) () => console.log(error);
+    console.log(result);
+  });*/
+
+
+  /*
   db.collection('tasks').find({status: false}).toArray((error, tasks) => {
     if (error) () => console.log(error);
 
     console.log(tasks);
-  });
+  });*/
   /*
   db.collection('tasks').insertMany([
     {
