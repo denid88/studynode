@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
 const router = express.Router();
+const multer = require('multer');
 
 router.post('/users', async (req, res) => {
   const user = new User(req.body);
@@ -97,10 +98,18 @@ router.post('/users/logoutAll', auth, async (req, res) => {
   try {
     req.user.tokens = [];
     await req.user.save();
-    res.status(400).send();
+    
   } catch (e) {
       res.status(500).send(e);
   }
+});
+
+const upload = multer({
+  dest: 'avatar',
+});
+
+router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+  res.status(200).send();
 });
 
 module.exports = router;
