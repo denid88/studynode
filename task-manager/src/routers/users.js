@@ -105,11 +105,43 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 });
 
 const upload = multer({
-  dest: 'avatar',
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|png|jpeg)$/)) {
+      cb(new Error('Please upload an image!'));
+    }
+
+    cb(undefined, true)
+  }
 });
 
-router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+router.post('/users/me/avatar', auth, upload.single('upload'), async (req, res) => {
+  req.user.avatar = req.file.buffer
+  await req.user.save();
   res.status(200).send();
+}, (error, req, res, next) => {
+  res.status(400).send({error: error.message});
+});
+
+router.delete('/users/me/avatar', auth, async (req, res) => {
+  req.user.avatar = undefined;
+  await req.user.save();
+  res.status(200).send('Avatar deleted!');
+});
+router.get('/users/me/avatar', auth, async (req, res) => {
+  try {
+    if (req.user.avatar !== undefined) {
+
+      res.set({'Content-Type': 'image/png'}).status(200).send(req.user.avatar);
+    } else {
+      res.status(500).send('Error image file');
+    }
+    
+  } catch(e) {
+    res.status(500).send(e);
+  }
 });
 
 module.exports = router;
