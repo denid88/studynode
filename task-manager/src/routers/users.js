@@ -3,12 +3,15 @@ const User = require('../models/user');
 const auth = require('../middleware/auth');
 const router = express.Router();
 const multer = require('multer');
+const sharp = require('sharp');
+const { sendWelcomeEmail, sendCanceledEmail } = require('../emails/account');
 
 router.post('/users', async (req, res) => {
   const user = new User(req.body);
   try {
       await user.save();
       const token = await user.generateAuthToken();
+      sendWelcomeEmail(user.email, user.name);
       res.status(201).send({user, token});
   } catch (e) {
       res.status(400).send(e);
@@ -65,6 +68,7 @@ router.delete('/users/me', auth, async (req, res) => {
   const _id = req.user._id;
   try {
     await req.user.remove();
+    sendCanceledEmail(req.user.email, req.user.name);
     res.status(200).send(req.user);
   } catch (e) {
       res.status(500).send(e);
@@ -118,7 +122,14 @@ const upload = multer({
 });
 
 router.post('/users/me/avatar', auth, upload.single('upload'), async (req, res) => {
-  req.user.avatar = req.file.buffer
+  const buffer = await sharp(req.file.buffer)
+    .resize({
+      width: 100,
+      height: 100
+    })
+    .png()
+    .toBuffer();
+  req.user.avatar = buffer;
   await req.user.save();
   res.status(200).send();
 }, (error, req, res, next) => {
@@ -130,6 +141,7 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
   await req.user.save();
   res.status(200).send('Avatar deleted!');
 });
+
 router.get('/users/me/avatar', auth, async (req, res) => {
   try {
     if (req.user.avatar !== undefined) {
