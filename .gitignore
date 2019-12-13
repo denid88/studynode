@@ -14,3 +14,5 @@ task-manager/node_modules/
 task-manager/package-lock.json
 task-manager/avatar
 
+chat-app/node_modules/
+chat-app/package-lock.json
