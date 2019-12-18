@@ -4,6 +4,8 @@ const express = require('express');
 const app = express();
 const socketio = require('socket.io');
 
+const { generateMessage, generateLocateMessage } = require('./utils/messages');
+
 const port = process.env.PORT || 3030;
 const server = http.createServer(app);
 const io = socketio(server);
@@ -19,8 +21,8 @@ let count = 0;
 io.on('connection', (socket) => {
   console.log('connection perfect!');
 
-  socket.emit('message', 'Welcome!');
-  socket.broadcast.emit('message', 'A new user has joined');
+  socket.emit('message', generateMessage('Welcome'));
+  socket.broadcast.emit('message', generateMessage('A new user has joined'));
 
   socket.on('sendMessage', function(message, callback) {
     const filter = new Filter();
@@ -29,18 +31,18 @@ io.on('connection', (socket) => {
       return callback('Profanity is no allow');
     }
 
-    io.emit('message', message);
+    io.emit('message', generateMessage(message));
     callback();
   });
 
   socket.on('setGeoposition', function(coords, callback) {
-    io.emit('message', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`);
+    io.emit('locationMessage', generateLocateMessage(`https://google.com/maps?q=${coords.latitude},${coords.longitude}`));
     callback();
   });
 
   socket.on('disconnect', () => {
     console.log('disconnecting');
-    io.emit('message', 'A user have left!');
+    io.emit('message', generateMessage('A user have left!'));
   });
 });
 
