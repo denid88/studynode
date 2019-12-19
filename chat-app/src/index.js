@@ -5,6 +5,7 @@ const app = express();
 const socketio = require('socket.io');
 
 const { generateMessage, generateLocateMessage } = require('./utils/messages');
+const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users');
 
 const port = process.env.PORT || 3030;
 const server = http.createServer(app);
@@ -40,9 +41,30 @@ io.on('connection', (socket) => {
     callback();
   });
 
+
+  socket.on('join', function(options, callback) {
+    
+    const { error, user } = addUser({id: socket.id, ...options });
+    
+    if (error) {
+      return callback(error);
+    }
+
+    socket.join(user.room);
+
+    socket.emit('message', generateMessage('Welcome'));
+    socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined`));
+
+    callback();
+  });
+
+
   socket.on('disconnect', () => {
+    const user = removeUser(socket.id);
     console.log('disconnecting');
-    io.emit('message', generateMessage('A user have left!'));
+    if (user) {
+      io.to(user.room).emit('message', generateMessage(`A ${user.username} have left!`));
+    }
   });
 });
 
