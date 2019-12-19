@@ -22,29 +22,34 @@ let count = 0;
 io.on('connection', (socket) => {
   console.log('connection perfect!');
 
-  socket.emit('message', generateMessage('Welcome'));
-  socket.broadcast.emit('message', generateMessage('A new user has joined'));
-
   socket.on('sendMessage', function(message, callback) {
+    
+    const user = getUser(socket.id);
+    
     const filter = new Filter();
 
     if(filter.isProfane(message)) {
       return callback('Profanity is no allow');
     }
 
-    io.emit('message', generateMessage(message));
+    io.to(user.room).emit('message', generateMessage(user.username, message));
     callback();
   });
 
   socket.on('setGeoposition', function(coords, callback) {
-    io.emit('locationMessage', generateLocateMessage(`https://google.com/maps?q=${coords.latitude},${coords.longitude}`));
+    const user = getUser(socket.id);
+    io.to(user.room).emit('locationMessage', generateLocateMessage(user.username, `https://google.com/maps?q=${coords.latitude},${coords.longitude}`));
     callback();
   });
 
 
   socket.on('join', function(options, callback) {
     
+    console.log(options);
+    
     const { error, user } = addUser({id: socket.id, ...options });
+
+    console.log(user);
     
     if (error) {
       return callback(error);
@@ -52,8 +57,8 @@ io.on('connection', (socket) => {
 
     socket.join(user.room);
 
-    socket.emit('message', generateMessage('Welcome'));
-    socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined`));
+    socket.emit('message', generateMessage('Admin', 'Welcome'));
+    socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined`));
 
     callback();
   });
@@ -62,8 +67,9 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     const user = removeUser(socket.id);
     console.log('disconnecting');
+    console.log(user);
     if (user) {
-      io.to(user.room).emit('message', generateMessage(`A ${user.username} have left!`));
+      io.to(user.room).emit('message', generateMessage('Admin', `A ${user.username} have left!`));
     }
   });
 });
